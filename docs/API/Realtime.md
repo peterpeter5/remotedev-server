@@ -46,7 +46,7 @@ socket.on('error', error => {
 ##### Python
 ```py
 def onconnect(socket):
-  // Here will call the next step
+  # Here you can log the event. 
 
 def ondisconnect(socket):
   logging.info("on disconnect got called")
@@ -85,7 +85,7 @@ def login(key, error, channelName):
   socket.on(channelName, handleMessages)
 
 def handleMessages(key, message):
-  // 5. Listening for monitor events
+ # 5. Listening for monitor events
 ```
 
 You could just emit the `login` event, and omit subscribing (and point `5` bellow) if you want only to log data, not to interact with te app.
@@ -114,16 +114,20 @@ const message = {
 };
 socket.emit(socket.id ? 'log' : 'log-noid', message);
 ```
-
+At the moment the python implementation of socket-cluster-client has no property ```socket.id```. So you will have to
+use ```log-noid``` instead
 ##### Python
 ```py
-class Message:
-  def __init__(self, action, state):
-    self.type = "ACTION"
-    self.action = action
-    self.payload = state
-    id: socket.id
-socket.emit(socket.id if "log" else "log-noid", Message(action, state));
+
+data = {
+    "type": "ACTION",
+    "payload": state,
+    "action": {
+        "timestamp": int(time.time()*1000),  # convert to js-Date
+        "action": action
+    },
+}
+socket.emit("log-noid", data);
 ```
 
 #### 5. Listening for monitor events
